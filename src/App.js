@@ -6,6 +6,8 @@ import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
 import { PROPERTY_TYPES } from "@babel/types";
+import PostForm from "./components/PostForm";
+
 
 function App() {
   const [posts, setPosts] = useState([
@@ -14,46 +16,15 @@ function App() {
     { id: 3, title: "JavaScript 3", body: "Description" },
   ]);
 
-  const [title, setTitle] = useState("default");
-  const [body, setBody] = useState("body");
 
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost])
+  }
   // const bodyInputRef = useRef(); Не управляемая хуйня
-
-  const addNewPost = (e) => {
-    e.preventDefault();
-    const newPost = {
-      id: Date.now,
-      title,
-      body,
-    };
-    console.log(newPost);
-    setPosts([...posts, newPost]);
-    setTitle("");
-    setBody("");
-    // console.log(bodyInputRef.current.value);
-  };
 
   return (
     <div className="App">
-      <form>
-        {/*Управляемый компонент*/}
-        <MyInput
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          type="text"
-          placeholder="Название поста"
-        />
-        {/*НЕУправляемый компонент*/}
-        {/* <MyInput ref={bodyInputRef} type="text" placeholder="Описание поста" /> */}
-
-        <MyInput
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          type="text"
-          placeholder="Название поста"
-        />
-        <MyButton onClick={addNewPost}>Создать пост</MyButton>
-      </form>
+      <PostForm create={createPost}/>
       <PostList posts={posts} title="Список постов 1" />
     </div>
   );
