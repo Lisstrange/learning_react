@@ -1,46 +1,37 @@
-import React, { useMemo, useRef, useState } from "react";
-import Counter from "./components/Counter";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./styles/App.css";
-import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
-import MyInput from "./components/UI/input/MyInput";
-import { PROPERTY_TYPES } from "@babel/types";
 import PostForm from "./components/PostForm";
-import MySelect from "./components/UI/select/MySelect";
-import { sort } from "semver";
 import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/MyModal/MyModal";
+import { usePosts } from "./hooks/usePost";
+import { async } from "q";
+import axios from "axios";
+import { useFetching } from "./hooks/useFetching";
 
 function App() {
-  const [posts, setPosts] = useState([
-    { id: 1, title: "фф", body: "ьь" },
-    { id: 2, title: "ыы 2", body: "вв" },
-    { id: 3, title: "ррр 3", body: "яяы" },
-  ]);
+  const [posts, setPosts] = useState([]);
 
   const [filter, setFilter] = useState({ sort: "", query: "" });
+  const [modal, setModal] = useState(false);
+  const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
 
-  // const sortedPosts = getSortedPosts();
-  const sortedPosts = useMemo(() => {
-    console.log("Отрабатывает сортировка");
-    if (filter.sort) {
-      return [...posts].sort((a, b) =>
-        a[filter.sort].localeCompare(b[filter.sort])
-      );
-    }
-    return posts;
-  }, [filter.sort, posts]);
-
-  const sortedAndSearchedPosts = useMemo(() => {
-    return sortedPosts.filter((post) =>
-      post.title.toLowerCase().includes(filter.query.toLowerCase())
+  const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
+    const response = await axios.get(
+      "https://jsonplaceholder.typicode.com/users/1/posts"
     );
-  }, [filter.query, sortedPosts]);
+    setPosts(response.data);
+  });
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
+    setModal(false);
   };
-  // const bodyInputRef = useRef(); Не управляемая хуйня
 
   const removePost = (post) => {
     setPosts(posts.filter((p) => p.id !== post.id));
@@ -48,17 +39,26 @@ function App() {
 
   return (
     <div className="App">
-      <PostForm create={createPost} />
+      <MyButton style={{ marginTop: 30 }} onClick={() => setModal(true)}>
+        Создать пост
+      </MyButton>
+      <MyModal visible={modal} setVisible={setModal}>
+        <PostForm create={createPost} />
+      </MyModal>
+
       <hr style={{ margin: "15px 0" }} />
       <PostFilter filter={filter} setFilter={setFilter} />
-      {sortedAndSearchedPosts.length ? (
+      {postError && <h1> Произошла ошибка </h1>}
+      {isPostsLoading ? (
+        <div style={{ display: "center" }}>
+          <h1>Загрузка...</h1>
+        </div>
+      ) : (
         <PostList
           remove={removePost}
           posts={sortedAndSearchedPosts}
           title="Посты про JS"
         />
-      ) : (
-        <h1 style={{ textAlign: "center" }}>Посты не найдены!</h1>
       )}
     </div>
   );
