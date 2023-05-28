@@ -19,22 +19,24 @@ function App() {
 
   // Сортировка
   const [selectedSort, setSelectedSort] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortedPosts, setSortedPosts] = useState([]);
 
   const sortPosts = (sort) => {
     setSelectedSort(sort);
   };
 
-  function getSortedPosts() {
-    console.log("Отрабатывает сортировка");
-    if (selectedSort) {
-      return [...posts].sort((a, b) =>
-        a[selectedSort].localeCompare(b[selectedSort])
-      );
-    }
-    return posts;
-  }
+  // function getSortedPosts() {
+  //   console.log("Отрабатывает сортировка");
+  //   if (selectedSort) {
+  //     return [...posts].sort((a, b) =>
+  //       a[selectedSort].localeCompare(b[selectedSort])
+  //     );
+  //   }
+  //   setSortedPosts(posts);
+  // }
 
-  const sortedPosts = getSortedPosts();
+  // const sortedPosts = getSortedPosts()
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -45,7 +47,15 @@ function App() {
     setPosts(posts.filter((p) => p.id !== post.id));
   };
 
-  const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => {
+    console.log("Отрабатывает сортировка");
+    if (selectedSort) {
+      const sorted = [...posts].sort((a, b) =>
+        a[selectedSort].localeCompare(b[selectedSort])
+      );
+      setSortedPosts(sorted);
+    }
+  }, [selectedSort]);
 
   return (
     <div className="App">
@@ -71,7 +81,7 @@ function App() {
       {posts.length ? (
         <PostList
           remove={removePost}
-          posts={sortedPosts}
+          posts={sortedPosts.length ? sortedPosts : posts}
           title="Список постов 1"
         />
       ) : (
