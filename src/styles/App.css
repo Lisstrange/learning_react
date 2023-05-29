@@ -4,8 +4,9 @@
   box-sizing: border-box;
 }
 #root {
-  justify-content: center;
+  align-items: center;
   display: flex;
+  flex-direction: column;
 }
 
 .App {
@@ -19,4 +20,18 @@
   margin-top: 15px;
   justify-content: space-between;
   align-items: center;
+}
+
+.navbar {
+  height: 50px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  background: beige;
+}
+
+.navbar__likns {
+  margin-left: auto;
+  padding-left: 20px;
 }
